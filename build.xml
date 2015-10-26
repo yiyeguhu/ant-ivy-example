@@ -1,0 +1,88 @@
+<project xmlns:ivy="antlib:org.apache.ivy.ant" name="ant-ivy-example" default="main" basedir=".">
+    <description>
+        Create a Java Project (JAR) with Ant and Ivy
+    </description>
+
+    <property name="projectName" value="ant-ivy-example" />
+
+    <!-- Java sources -->
+    <property name="src.dir" location="src" />
+    <!-- Java classes -->
+    <property name="build.dir" location="target/classes" />
+    <!-- Output, Jar -->
+    <property name="dist.dir" location="target" />
+
+    <property name="ivy.install.version" value="2.1.0-rc2" />
+    <property name="ivy.home" value="${user.home}/.ant" />
+    <!-- lib location -->
+    <property name="lib.dir" value="${ivy.home}/lib" />
+    <property name="ivy.jar.file" value="${lib.dir}/ivy.jar" />
+
+    <path id="classpath">
+        <fileset dir="${lib.dir}/">
+            <include name="*/jar/*.jar" />
+        </fileset>
+    </path>
+
+    <target name="init" description="init target dir">
+        <!-- Create the time stamp -->
+        <tstamp />
+        <!-- Create the build directory structure used by compile -->
+        <mkdir dir="${build.dir}" />
+    </target>
+
+    <target name="compile" depends="init" description="compile the source ">
+        <!-- Compile the java code from ${src.dir} into ${build.dir} -->
+        <javac includeantruntime="false" srcdir="${src.dir}" destdir="${build.dir}" classpathref="classpath" />
+    </target>
+
+    <target name="package" depends="compile" description="package, output to JAR">
+        <!-- Create the distribution directory -->
+        <mkdir dir="${dist.dir}" />
+
+        <!-- Put everything in ${build} into the {$projectName}-${DSTAMP}.jar file -->
+        <jar jarfile="${dist.dir}/${projectName}-${DSTAMP}.jar" basedir="${build.dir}" >
+            <manifest>
+                <!-- create an executable Jar -->
+                <attribute name="Main-Class" value="main.java.com.yiyeguhu.example.antivy.DateUtils" />
+            </manifest>
+        </jar>
+    </target>
+
+    <target name="clean" description="clean up">
+        <delete dir="${build.dir}" />
+        <delete dir="${dist.dir}" />
+    </target>
+
+    <!-- Default, run this -->
+    <target name="main" depends="clean, package" >
+        <echo message="Clean up and make a new package in ${dist.dir}"/>
+    </target>
+
+    <target name="download-ivy" unless="offline">
+        <mkdir dir="${lib.dir}"/>
+        <!-- download Ivy from web site so that it can be used even without any special installation -->
+        <get src="http://repo2.maven.org/maven2/org/apache/ivy/ivy/${ivy.install.version}/ivy-${ivy.install.version}.jar"
+             dest="${ivy.jar.file}" usetimestamp="true"/>
+    </target>
+
+    <target name="init-ivy" depends="download-ivy">
+        <!-- try to load ivy here from ivy home, in case the user has not already dropped
+                it into ant's lib dir (note that the latter copy will always take precedence).
+                We will not fail as long as local lib dir exists (it may be empty) and
+                ivy is in at least one of ant's lib dir or the local lib dir. -->
+        <path id="ivy.lib.path">
+            <fileset dir="${lib.dir}" includes="*.jar"/>
+        </path>
+        <taskdef resource="org/apache/ivy/ant/antlib.xml"
+                 uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path"/>
+        <!--<property name="myclasspath" refid="ivy.lib.path"/>-->
+        <!--<echo message="Classpath = ${myclasspath}"/>-->
+    </target>
+
+    <!-- ivy to get dependencies and copy to project lib folder automatically -->
+    <target name="resolve" description="--> retrieve dependencies with ivy" depends="init-ivy">
+        <ivy:retrieve pattern="${lib.dir}/[organisation]/[type]/[artifact]-[type]-[revision].[ext]" />
+    </target>
+
+</project>
