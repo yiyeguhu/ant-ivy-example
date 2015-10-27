@@ -55,8 +55,8 @@
     </target>
 
     <!-- Default, run this -->
-    <target name="main" depends="clean, package" >
-        <echo message="Clean up and make a new package in ${dist.dir}"/>
+    <target name="main" depends="clean, resolve, package" >
+        <echo message="Clean up, resolve dependencies and make a new package in ${dist.dir}"/>
     </target>
 
     <target name="download-ivy" unless="offline">
