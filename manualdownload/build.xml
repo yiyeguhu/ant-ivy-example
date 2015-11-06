@@ -64,17 +64,10 @@
         <echo message="Clean up, resolve dependencies and make a new package in ${dist.dir}"/>
     </target>
 
-    <target name="init-ivy" >
-        <!-- try to load ivy here from ivy home, in case the user has not already dropped
-                it into ant's lib dir (note that the latter copy will always take precedence).
-                We will not fail as long as local lib dir exists (it may be empty) and
-                ivy is in at least one of ant's lib dir or the local lib dir. -->
-        <taskdef resource="org/apache/ivy/ant/antlib.xml"
-                 uri="antlib:org.apache.ivy.ant" classpathref="ivy.jar.file"/>
-    </target>
+    <taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" classpathref="ivy.jar.file"/>
 
     <!-- ivy to get dependencies and copy to project lib folder automatically -->
-    <target name="resolve" description="--> retrieve dependencies with ivy" depends="init-ivy">
+    <target name="resolve" description="--> retrieve dependencies with ivy">
         <ivy:retrieve pattern="${lib.dir}/[organisation]/[type]/[artifact]-[type]-[revision].[ext]" />
     </target>
 
